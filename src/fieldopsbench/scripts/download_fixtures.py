@@ -34,7 +34,11 @@ import os
 import sys
 from pathlib import Path
 
-DEFAULT_REPO_ID = "camerasearch/fieldopsbench-assets"
+# Public dataset repo — same as upload_fixtures.py's DEFAULT_PUBLIC_REPO_ID.
+# HF namespaces are case-sensitive at the API layer; the owning account is
+# ``CameraSearch``. If we later create an HF org named ``camerasearch`` to
+# match the GitHub org, update this and add a Hub-side rename redirect.
+DEFAULT_REPO_ID = "CameraSearch/fieldopsbench"
 DEFAULT_REPO_TYPE = "dataset"
 
 ALL_INDUSTRIES = [

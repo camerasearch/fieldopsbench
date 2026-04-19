@@ -73,7 +73,7 @@ Homepage = "https://github.com/camerasearch/fieldopsbench"
 Repository = "https://github.com/camerasearch/fieldopsbench"
 Issues = "https://github.com/camerasearch/fieldopsbench/issues"
 Changelog = "https://github.com/camerasearch/fieldopsbench/blob/main/CHANGELOG.md"
-"Hugging Face" = "https://huggingface.co/datasets/camerasearch/fieldopsbench"
+"Hugging Face" = "https://huggingface.co/datasets/CameraSearch/fieldopsbench"
 Methodology = "https://github.com/camerasearch/fieldopsbench/blob/main/METHODOLOGY.md"
 Datasheet = "https://github.com/camerasearch/fieldopsbench/blob/main/DATASHEET.md"
 
