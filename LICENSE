@@ -1,0 +1,35 @@
+FieldOpsBench — Code License
+
+Copyright (c) 2026 Camera Search
+
+All rights reserved.
+
+THE CODE IN THIS REPOSITORY (BENCHMARK HARNESS, SCORING, RUNNERS, SCRIPTS,
+SCHEMAS, AND DOCUMENTATION) IS PROVIDED FOR ACADEMIC AND NON-COMMERCIAL
+EVALUATION PURPOSES.
+
+You may:
+  - Clone, fork, and run this benchmark against any model you have
+    authority to evaluate.
+  - Publish evaluation results and cite this benchmark in academic work.
+  - Modify the code locally and contribute improvements back via pull
+    request.
+
+You may not (without prior written consent):
+  - Redistribute derivative versions of the benchmark that claim to be
+    "FieldOpsBench" without substantive coordination with the
+    maintainers.
+  - Use the benchmark code in a commercial offering that charges for
+    access to the benchmark itself.
+
+Dataset contents (images, documents, acquired samples) are governed by a
+separate fair-use posture described in LICENSE_STATEMENT.md. Each asset
+retains the license of its original source.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
