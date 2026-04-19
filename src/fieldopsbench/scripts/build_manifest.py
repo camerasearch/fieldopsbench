@@ -120,6 +120,19 @@ def build(images_root: Path, manifest_path: Path, *, check: bool = False) -> int
 
     existing = _load_existing(manifest_path)
     files = _collect_images(images_root)
+
+    if check and not files and existing:
+        # Image binaries are .gitignore'd and only hydrated locally before
+        # an upload. In a fresh checkout (or CI) we have no binaries to
+        # diff against, so --check has nothing meaningful to verify here.
+        # Metadata invariants (no /var/folders URLs, unique SHAs, every
+        # active case attachment resolves) are covered by tests/test_manifest.py.
+        print(
+            f"build_manifest --check: no image binaries on disk under {images_root}; "
+            f"skipping content diff (manifest has {len(existing)} rows)."
+        )
+        return 0
+
     new_rows: list[dict[str, Any]] = []
     for f in files:
         rel = f.relative_to(images_root).as_posix()
@@ -130,33 +143,43 @@ def build(images_root: Path, manifest_path: Path, *, check: bool = False) -> int
     if new_text:
         new_text += "\n"
 
-    current_text = manifest_path.read_text() if manifest_path.exists() else ""
-
     if check:
-        if current_text != new_text:
-            missing = [r["path"] for r in new_rows if r["path"] not in existing]
-            extra = [p for p in existing if p not in {r["path"] for r in new_rows}]
-            stale = []
-            for r in new_rows:
-                prior = existing.get(r["path"])
-                if prior and (
-                    prior.get("sha256") != r["sha256"]
-                    or prior.get("size_bytes") != r["size_bytes"]
-                ):
-                    stale.append(r["path"])
+        new_paths = {r["path"] for r in new_rows}
+        missing = [r["path"] for r in new_rows if r["path"] not in existing]
+        extra = [p for p in existing if p not in new_paths]
+        stale: list[str] = []
+        for r in new_rows:
+            prior = existing.get(r["path"])
+            if prior and (
+                prior.get("sha256") != r["sha256"]
+                or prior.get("size_bytes") != r["size_bytes"]
+            ):
+                stale.append(r["path"])
+
+        # ``missing`` and ``stale`` are real regressions: a binary appeared on
+        # disk that nobody catalogued, or its bytes drifted from the manifest.
+        # ``extra`` is expected by design — non-Reddit binaries are gated
+        # behind a license audit and are not on disk in a fresh checkout, so
+        # the manifest is intentionally a superset of the binaries here. We
+        # report it but do not fail on it.
+        if missing or stale:
             print(
-                f"MANIFEST.jsonl is stale: "
-                f"{len(missing)} missing, {len(extra)} extra, {len(stale)} sha/size changed",
+                f"MANIFEST.jsonl is stale: {len(missing)} missing, {len(stale)} sha/size changed",
                 file=sys.stderr,
             )
             for p in missing[:5]:
                 print(f"  missing: {p}", file=sys.stderr)
-            for p in extra[:5]:
-                print(f"  extra:   {p}", file=sys.stderr)
             for p in stale[:5]:
                 print(f"  stale:   {p}", file=sys.stderr)
             return 1
-        print(f"MANIFEST.jsonl is up to date ({len(new_rows)} rows)")
+        if extra:
+            print(
+                f"MANIFEST.jsonl ok: {len(new_rows)} binaries on disk match the manifest "
+                f"({len(extra)} additional manifest rows have no local binary — "
+                "expected when binaries are gated behind a license audit)."
+            )
+        else:
+            print(f"MANIFEST.jsonl is up to date ({len(new_rows)} rows)")
         return 0
 
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -182,8 +205,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    root = Path(__file__).resolve().parents[1]
-    images_root = root / "fixtures" / "images"
+    repo_root = Path(__file__).resolve().parents[3]
+    images_root = repo_root / "fixtures" / "images"
     manifest_path = images_root / "MANIFEST.jsonl"
     return build(images_root, manifest_path, check=args.check)
 

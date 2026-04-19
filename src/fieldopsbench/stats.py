@@ -1,4 +1,11 @@
-"""Statistical helpers: bootstrap CIs, pass^k, Cohen's d, canary checks."""
+"""Statistical helpers: bootstrap CIs, Cohen's d, canary checks.
+
+The ``pass_at_k`` helper below is intentionally retained but no longer
+exposed through the CLI or report schema. Re-introducing pass^k requires
+running each case k times in ``run.py`` and feeding per-case score lists
+into ``pass_at_k``; until that lands the helper is a building block for a
+future release. See ``ROADMAP.md``.
+"""
 
 from __future__ import annotations
 

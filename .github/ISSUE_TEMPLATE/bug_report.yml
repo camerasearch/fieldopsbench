@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in the harness, runners, or scoring is wrong.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. **For security reports** (vulnerabilities,
+        contamination evidence, takedown requests) use the contact in
+        [SECURITY.md](../blob/main/SECURITY.md) instead of this form.
+
+  - type: input
+    id: version
+    attributes:
+      label: FieldOpsBench version
+      description: From `pyproject.toml` or `pip show fieldopsbench`
+      placeholder: "0.2.1"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.11.7"
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Model / runner (if relevant)
+      placeholder: "claude-opus-4.6 / gpt-5.4 / sen / dry-run"
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Exact command, expected behavior, actual behavior. Include the head of `bash scripts/preflight.sh` output if relevant.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: report-snippet
+    attributes:
+      label: Report JSON snippet (optional)
+      description: If a benchmark report contains the wrong value, paste the relevant fields. Redact API keys.
+      render: json

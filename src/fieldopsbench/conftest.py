@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
 
 from .schema import EvalCase
 
-_CASES_ROOT = Path(__file__).resolve().parent / "cases"
+_CASES_ROOT = Path(__file__).resolve().parents[2] / "cases"
 
 
 def _load_from_split(filename: str, split: str) -> list[EvalCase]:

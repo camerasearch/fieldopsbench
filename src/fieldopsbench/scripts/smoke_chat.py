@@ -177,7 +177,7 @@ async def _run() -> int:
         result = await _consume_stream(url, text_payload, secret)
         all_ok = _summarize("text-only", result) and all_ok
     except Exception as e:
-        print(f"  [FAIL] text-only")
+        print("  [FAIL] text-only")
         print(f"         {e!r}")
         all_ok = False
 
@@ -201,7 +201,7 @@ async def _run() -> int:
             result = await _consume_stream(url, img_payload, secret)
             all_ok = _summarize("with-image", result) and all_ok
         except Exception as e:
-            print(f"  [FAIL] with-image")
+            print("  [FAIL] with-image")
             print(f"         {e!r}")
             all_ok = False
 

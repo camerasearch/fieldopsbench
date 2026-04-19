@@ -8,9 +8,7 @@ Grok) are stateless API calls with no database interaction.
 from __future__ import annotations
 
 import asyncio
-import os
 import random
-import time
 from typing import Any, Protocol
 
 from ..schema import EvalCase, TraceRecord

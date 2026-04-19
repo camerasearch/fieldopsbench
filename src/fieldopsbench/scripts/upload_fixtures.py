@@ -98,13 +98,19 @@ def _count_files(root: Path, rel_path: str, patterns: list[str]) -> int:
 
 
 def _verify_manifest_in_sync(root: Path) -> bool:
-    script = root / "scripts" / "build_manifest.py"
-    if not script.exists():
-        print("WARN: build_manifest.py missing; skipping manifest sync check.", file=sys.stderr)
-        return True
+    """Invoke build_manifest as a module so it works regardless of the
+    repo layout. The previous implementation pointed at
+    ``root/scripts/build_manifest.py`` which never existed (the script
+    actually lives at ``src/fieldopsbench/scripts/build_manifest.py``),
+    so this check silently passed for every release."""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = (
+        str(root / "src") + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+    )
     result = subprocess.run(
-        [sys.executable, str(script), "--check"],
+        [sys.executable, "-m", "fieldopsbench.scripts.build_manifest", "--check"],
         cwd=str(root),
+        env=env,
         capture_output=True,
         text=True,
     )
@@ -221,7 +227,9 @@ def main() -> int:
     else:
         repo_id = DEFAULT_PUBLIC_REPO_ID if make_public else DEFAULT_PRIVATE_REPO_ID
 
-    root = Path(__file__).resolve().parents[1]
+    # __file__ is src/fieldopsbench/scripts/upload_fixtures.py, so parents are
+    # [0]=scripts, [1]=fieldopsbench, [2]=src, [3]=repo root.
+    root = Path(__file__).resolve().parents[3]
 
     if args.cases_only and args.images_only:
         print("ERROR: --cases-only and --images-only are mutually exclusive.", file=sys.stderr)
@@ -307,6 +315,25 @@ def main() -> int:
     print("\nUploading...")
     for name in selected:
         _upload_target(repo_id, token, root, name, UPLOAD_TARGETS[name])
+
+    # The HF dataset Hub renders the *root* README.md as the dataset card and
+    # parses its YAML frontmatter for tags / configs / splits. Our root README
+    # is the GitHub README and intentionally has no HF-specific frontmatter
+    # (it's full of GitHub-flavored content). HF_DATASET_CARD.md is the
+    # purpose-built card; upload it as README.md on the Hub side, *after* the
+    # docs target so it overwrites the GitHub README upload.
+    if "docs" in selected:
+        from huggingface_hub import HfApi
+        hf_card = root / "HF_DATASET_CARD.md"
+        if hf_card.exists():
+            print("  [docs] uploading HF_DATASET_CARD.md as README.md on the Hub")
+            HfApi(token=token).upload_file(
+                path_or_fileobj=str(hf_card),
+                path_in_repo="README.md",
+                repo_id=repo_id,
+                repo_type=DEFAULT_REPO_TYPE,
+                commit_message="upload HF dataset card (frontmatter + tags)",
+            )
 
     print("\nupload complete.")
     if make_public:
