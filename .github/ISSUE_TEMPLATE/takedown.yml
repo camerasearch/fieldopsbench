@@ -1,28 +1,21 @@
 name: Image takedown request
 description: Request removal of an image asset for which you are the rights holder.
 labels: ["takedown"]
-title: "[takedown] <sha256 prefix>"
+title: "[takedown] "
 body:
   - type: markdown
     attributes:
       value: |
         For faster handling you can also email the address in
-        [SECURITY.md](../blob/main/SECURITY.md). We respond to takedown
-        requests within 72 hours and remove confirmed assets within 7 days.
+        [SECURITY.md](../blob/main/SECURITY.md). We acknowledge requests
+        within 72 hours and remove the image within 7 days. You do not need to give a reason.
 
   - type: input
-    id: sha
+    id: post
     attributes:
-      label: SHA-256 of the asset
-      description: From `fixtures/images/MANIFEST.jsonl`
-    validations:
-      required: true
-
-  - type: input
-    id: path
-    attributes:
-      label: Manifest `path`
-      placeholder: "reddit_vision/electrical/vis-electrical-..."
+      label: Link to your original post, or the image's manifest `path` / SHA-256
+      description: Any one of these is enough for us to find the image.
+      placeholder: "https://www.reddit.com/r/.../comments/... or reddit_vision/electrical/vis-electrical-..."
     validations:
       required: true
 
@@ -30,7 +23,7 @@ body:
     id: rights
     attributes:
       label: Your relationship to the asset
-      description: Are you the original photographer / poster, the rights holder of the depicted equipment, or the rights holder's authorized agent? We cannot act on behalf of third parties.
+      description: For example the person who took or posted the photo, or someone acting for them.
     validations:
       required: true
 

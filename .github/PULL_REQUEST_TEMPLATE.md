@@ -19,21 +19,16 @@ must be green for a maintainer to look at the change.
 
 ## Checklist
 
-- [ ] `bash scripts/preflight.sh` exits 0 locally.
-- [ ] If I changed a count claim (trades, code bodies, cases, images),
-      I updated **all** of: `README.md`, `pyproject.toml`,
-      `DATASHEET.md`, `LICENSE_STATEMENT.md`, `CHANGELOG.md`.
-- [ ] If I added a new public claim in docs (a metric, a guarantee, a
-      defense), I added a test under `tests/` that demonstrates it.
-- [ ] No tracked changes under `cases/private/` or `candidates/`.
-- [ ] No new image binaries committed (binaries are gitignored; the
-      manifest is the source of truth in git).
-- [ ] If I added a new visual case, the image flowed through
-      `fixtures/images/intake/` + `scripts/intake_visual.py` and the
-      manifest row records `source_url`, `attribution`, `license`.
-- [ ] If I touched the dataset canary string
-      (`FIELDOPSBENCH_DATASET_CANARY`), I have read SECURITY.md and
-      understand this invalidates prior contamination probes.
+- [ ] `bash scripts/preflight.sh` passes locally.
+- [ ] If this changes any score, it has a `CHANGELOG.md` entry and
+      `METHODOLOGY.md` is updated.
+- [ ] If this changes case counts, the README, datasheet, and dataset card
+      are updated and `make figures` was re-run.
+- [ ] New or changed cases were formatted with
+      `python -m fieldopsbench.scripts.format_cases`.
+- [ ] No files under `cases/private/` and no image binaries are included.
+- [ ] New images have a manifest row with a working `source_url`, an
+      attribution, and a license.
 
 ## Notes for the reviewer
 

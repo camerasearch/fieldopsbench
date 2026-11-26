@@ -2,10 +2,10 @@
 # Install FieldOpsBench pre-commit contamination guard.
 #
 # Usage:
-#   bash scripts/install_hooks.sh
+#   bash src/fieldopsbench/scripts/install_hooks.sh
 #
 # Finds the repo root via `git rev-parse --show-toplevel` and wires up
-# .git/hooks/pre-commit to call scripts/pre_commit_check.py. Preserves any
+# .git/hooks/pre-commit to call src/fieldopsbench/scripts/pre_commit_check.py. Preserves any
 # existing hook by chaining it (runs the old hook first, then ours).
 
 set -euo pipefail
