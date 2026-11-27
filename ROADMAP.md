@@ -5,6 +5,8 @@ README and METHODOLOGY describe only what the code does today.
 
 ## Data
 
+- **Publish the photos** (or their replacements) once provenance and
+  licensing are settled, so that anyone can run the photo cases.
 - **Verify photo provenance.** Check every Reddit source URL against the
   original collection data, fix truncated post ids, and screen the photos for
   personal information.

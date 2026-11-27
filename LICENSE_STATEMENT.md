@@ -17,7 +17,9 @@ license label. All 46 images have the same origin:
 | Photos posted by users to r/AskElectricians, r/Plumbing, r/HVAC, r/roofing, r/solar, r/Construction | 46 | The Reddit user who posted each photo | `reddit_user_content_fair_use` |
 
 No image has been cleared with its author, and every row carries
-`"license_verified": false`.
+`"license_verified": false`. For that reason the image files themselves have
+not been published yet; the manifest is public so that provenance can be
+reviewed first.
 
 ## Basis for use
 
