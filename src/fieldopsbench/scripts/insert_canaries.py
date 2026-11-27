@@ -31,23 +31,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import uuid
 from datetime import date
 from pathlib import Path
 
-# ---------------------------------------------------------------------------
-# Bootstrap import path so this script runs both as `python scripts/...` and
-# as `python -m fieldopsbench.scripts.insert_canaries`.
-# ---------------------------------------------------------------------------
-_THIS = Path(__file__).resolve()
-_PKG_DIR = _THIS.parent.parent          # src/fieldopsbench/
-_REPO_ROOT = _PKG_DIR.parent.parent     # repo root
-_FOB_DIR = _REPO_ROOT                   # where cases/ lives
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+from fieldopsbench.paths import repo_root
+from fieldopsbench.schema import FIELDOPSBENCH_DATASET_CANARY
 
-from fieldopsbench.schema import FIELDOPSBENCH_DATASET_CANARY  # noqa: E402
+_FOB_DIR = repo_root()
 
 # Stable namespace for deterministic canary generation. Do NOT change.
 CANARY_NAMESPACE = uuid.UUID("6b5f0a42-9d1c-4e20-8b63-2c1a9e7f4d01")

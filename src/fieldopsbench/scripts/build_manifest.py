@@ -35,6 +35,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from fieldopsbench.paths import repo_root as _repo_root
+
 _IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 _SOURCE_DATASET_RE = re.compile(r"^(?P<name>.+?)-\d{3,}-[0-9a-f]{6,}\.[a-z]+$", re.IGNORECASE)
@@ -205,7 +207,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = _repo_root()
     images_root = repo_root / "fixtures" / "images"
     manifest_path = images_root / "MANIFEST.jsonl"
     return build(images_root, manifest_path, check=args.check)

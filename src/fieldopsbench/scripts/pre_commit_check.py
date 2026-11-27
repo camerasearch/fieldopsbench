@@ -4,22 +4,23 @@ Rejects a commit if any of the following are staged:
 
   1. Any path under `cases/private/`
   2. Any path under `candidates/`
-  3. Any file whose contents contain the dataset-level canary string
-     (which lives in the private split only).
+  3. Any file containing a per-case canary string (`FOB-CANARY-<uuid>` other
+     than the published dataset-level canary); those exist only in private cases.
 
-The intent is to make it architecturally impossible to accidentally publish
-held-out evaluation material to the company software repo.
+The point is to stop held-out evaluation material from being committed to a
+public repository by accident.
 
 Exit codes:
   0 = OK
   1 = blocked (prints reasons, commit should fail)
   2 = internal error
 
-Invoked from .git/hooks/pre-commit (installed via scripts/install_hooks.sh).
+Invoked from .git/hooks/pre-commit (installed via install_hooks.sh).
 """
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -46,6 +47,8 @@ def _load_dataset_canary() -> str | None:
             return rhs or None
     return None
 
+
+CASE_CANARY_RE = re.compile(rb"FOB-CANARY-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}")
 
 BLOCKED_PREFIXES = (
     "cases/private/",
@@ -83,7 +86,7 @@ def main() -> int:
     canary = _load_dataset_canary()
     if not canary:
         print(
-            "pre-commit: WARNING — could not locate FIELDOPSBENCH_DATASET_CANARY "
+            "pre-commit: WARNING: could not locate FIELDOPSBENCH_DATASET_CANARY "
             "in schema.py; running path-only checks.",
             file=sys.stderr,
         )
@@ -99,21 +102,23 @@ def main() -> int:
         for prefix in BLOCKED_PREFIXES:
             if p.startswith(prefix):
                 reasons.append(
-                    f"  - {p}\n      → blocked path (contamination boundary: {prefix})"
+                    f"  - {p}\n      -> blocked path (contamination boundary: {prefix})"
                 )
 
-    # Rule 3: dataset canary in any staged file
-    if canary:
-        canary_bytes = canary.encode("utf-8")
-        for p in staged:
-            if any(p.startswith(b) for b in BLOCKED_PREFIXES):
-                continue  # already reported
-            blob = staged_blob(p)
-            if blob and canary_bytes in blob:
-                reasons.append(
-                    f"  - {p}\n      → contains FIELDOPSBENCH_DATASET_CANARY; "
-                    f"this string belongs only in the private split."
-                )
+    # Rule 3: a per-case canary in any staged file. The dataset-level canary is
+    # published on purpose (schema.py, DATASHEET.md, ...); per-case canaries
+    # exist only inside private cases.
+    for p in staged:
+        if any(p.startswith(b) for b in BLOCKED_PREFIXES):
+            continue  # already reported
+        found = set(CASE_CANARY_RE.findall(staged_blob(p)))
+        if canary:
+            found.discard(canary.encode("utf-8"))
+        if found:
+            reasons.append(
+                f"  - {p}\n      -> contains a per-case canary string; "
+                "that marks content from the private split."
+            )
 
     if not reasons:
         return 0
@@ -122,8 +127,8 @@ def main() -> int:
         "\nFieldOpsBench pre-commit guard BLOCKED this commit:\n\n"
         + "\n".join(reasons)
         + "\n\nWhy: these files form the contamination-control boundary of the\n"
-        "held-out evaluation set. Publishing them to the company software repo\n"
-        "would leak the private benchmark into public indexes.\n\n"
+        "held-out evaluation set. Committing them to a public repository would\n"
+        "put the private split within reach of training-data crawlers.\n\n"
         "To work around (only if you know what you're doing):\n"
         "  git commit --no-verify\n\n"
         "To publish private assets intentionally, use:\n"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Push FieldOpsBench assets to a HuggingFace dataset repo.
 
-Default target: public repo `camerasearch/fieldopsbench` with
+Default target: public repo `CameraSearch/fieldopsbench` with
   - cases/public/
   - candidates/
   - fixtures/images/
@@ -19,19 +19,19 @@ Setup (one time):
 
 Typical use:
     # Dry-run (default): show what would be uploaded
-    python scripts/upload_fixtures.py
+    python -m fieldopsbench.scripts.upload_fixtures
 
     # Upload to PUBLIC repo (fair-use posture, documented in LICENSE_STATEMENT.md)
-    python scripts/upload_fixtures.py --execute --public
+    python -m fieldopsbench.scripts.upload_fixtures --execute --public
 
     # Upload to a PRIVATE repo (internal mirror before public release)
-    python scripts/upload_fixtures.py --execute --private --repo-id CameraSearch/fieldopsbench-assets
+    python -m fieldopsbench.scripts.upload_fixtures --execute --private --repo-id CameraSearch/fieldopsbench-assets
 
     # Include the held-out eval set (will leak into training data if pushed public -- be sure)
-    python scripts/upload_fixtures.py --execute --public --include-private
+    python -m fieldopsbench.scripts.upload_fixtures --execute --public --include-private
 
     # Partial: only image binaries
-    python scripts/upload_fixtures.py --execute --public --images-only
+    python -m fieldopsbench.scripts.upload_fixtures --execute --public --images-only
 
 The script runs `build_manifest.py --check` before uploading images and
 refuses to proceed if the manifest is stale. Override with --skip-manifest-check.
@@ -44,6 +44,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+from fieldopsbench.paths import repo_root
 
 # NOTE: HF namespaces are case-sensitive at the API layer. The owning HF
 # account is ``CameraSearch`` (capital C and S); the lowercased namespace
@@ -227,14 +229,11 @@ def main() -> int:
     if not args.public and not args.private:
         make_public = True
 
-    if args.repo_id:
-        repo_id = args.repo_id
-    else:
-        repo_id = DEFAULT_PUBLIC_REPO_ID if make_public else DEFAULT_PRIVATE_REPO_ID
+    repo_id = args.repo_id or (DEFAULT_PUBLIC_REPO_ID if make_public else DEFAULT_PRIVATE_REPO_ID)
 
     # __file__ is src/fieldopsbench/scripts/upload_fixtures.py, so parents are
     # [0]=scripts, [1]=fieldopsbench, [2]=src, [3]=repo root.
-    root = Path(__file__).resolve().parents[3]
+    root = repo_root()
 
     if args.cases_only and args.images_only:
         print("ERROR: --cases-only and --images-only are mutually exclusive.", file=sys.stderr)
@@ -297,7 +296,7 @@ def main() -> int:
         print("\nVerifying MANIFEST.jsonl is in sync with fixtures/images/ ...")
         if not _verify_manifest_in_sync(root):
             print(
-                "\nManifest is stale. Run `python scripts/build_manifest.py` and re-run upload.\n"
+                "\nManifest is stale. Run `python -m fieldopsbench.scripts.build_manifest` and re-run upload.\n"
                 "(Or pass --skip-manifest-check to override.)",
                 file=sys.stderr,
             )
@@ -308,7 +307,7 @@ def main() -> int:
         return 0
 
     try:
-        from huggingface_hub import HfApi  # noqa: F401
+        from huggingface_hub import HfApi
     except ImportError:
         print("\nERROR: huggingface_hub not installed. Run: pip install huggingface_hub", file=sys.stderr)
         return 1
